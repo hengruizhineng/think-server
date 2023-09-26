@@ -63,6 +63,18 @@ RUN apt-get update -y \
   && apt-get autoclean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
 
 
+RUN pecl install rdkafka
+RUN echo extension=rdkafka.so > /etc/php/8.1/mods-available/rdkafka.ini
+RUN phpenmod rdkafka
+
+# RUN pecl install Mosquitto-0.4.0
+# RUN printf "; priority=40\nextension=mosquitto.so\n" > /etc/php/8.1/mods-available/mosquitto.ini
+# RUN phpenmod mosquitto
+
+RUN pecl install swoole
+RUN printf "; priority=40\nextension=swoole.so\n" > /etc/php/8.1/mods-available/swoole.ini
+RUN phpenmod swoole
+
 ADD etc /etc
 
 
