@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:23.04
 LABEL version="1.0.0"
 LABEL vendor="hrzn.ltd"
 
@@ -32,7 +32,6 @@ RUN apt-get update -y \
   php-cli \
   php-imagick \
   php-json \
-  php-services-json \
   php-mail \
   php-mbstring \
   php-memcached \
@@ -50,7 +49,6 @@ RUN apt-get update -y \
   php-sybase \
   php-amqp \
   php-geos \
-  php-http-request \
   php-log \
   php-net-socket \
   php-pgsql \
@@ -67,9 +65,9 @@ RUN pecl install rdkafka
 RUN echo extension=rdkafka.so > /etc/php/8.1/mods-available/rdkafka.ini
 RUN phpenmod rdkafka
 
-# RUN pecl install Mosquitto-0.4.0
-# RUN printf "; priority=40\nextension=mosquitto.so\n" > /etc/php/8.1/mods-available/mosquitto.ini
-# RUN phpenmod mosquitto
+RUN pecl install Mosquitto-0.4.0
+RUN printf "; priority=40\nextension=mosquitto.so\n" > /etc/php/8.1/mods-available/mosquitto.ini
+RUN phpenmod mosquitto
 
 RUN pecl install swoole
 RUN printf "; priority=40\nextension=swoole.so\n" > /etc/php/8.1/mods-available/swoole.ini
