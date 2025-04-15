@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 LABEL version="1.0.0"
 LABEL vendor="hrzn.ltd"
 
@@ -15,6 +15,8 @@ ENV LANG en_US.utf8
 # 基础功能
 RUN apt-get update -y \
   && apt-get install -y \
+  gnupg2 \
+  lsb-release \
   curl \
   wget \
   net-tools \
@@ -24,15 +26,22 @@ RUN apt-get update -y \
   && apt-get autoclean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
 
 
+# RUN curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.gpg
+RUN curl -sSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor -o /usr/share/keyrings/microsoft-prod.gpg
+RUN curl -sSL https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | tee /etc/apt/sources.list.d/mssql-release.list
+
+
 # Web环境
 RUN apt-get update -y \
   && apt-get install -y \
+  unixodbc-dev \
+  msodbcsql18 \
   nginx \
   php-fpm \
   php-cli \
   php-imagick \
   php-json \
-  php-services-json \
   php-mail \
   php-mbstring \
   php-memcached \
@@ -50,7 +59,6 @@ RUN apt-get update -y \
   php-sybase \
   php-amqp \
   php-geos \
-  php-http-request \
   php-log \
   php-net-socket \
   php-pgsql \
@@ -58,22 +66,27 @@ RUN apt-get update -y \
   php-pear \
   php-dev \
   librdkafka-dev \
-  libmosquitto-dev \
   composer \
   && apt-get autoclean && apt-get autoremove && rm -rf /var/lib/apt/lists/*
 
 
+# 安装 PHP 扩展
+RUN pecl install sqlsrv
+RUN pecl install pdo_sqlsrv
+RUN echo "extension=sqlsrv.so" | tee -a /etc/php/8.3/mods-available/20-sqlsrv.ini
+RUN echo "extension=pdo_sqlsrv.so" | tee -a /etc/php/8.3/mods-available/20-pdo_sqlsrv.ini
+RUN phpenmod sqlsrv
+RUN phpenmod pdo_sqlsrv
+
+
 RUN pecl install rdkafka
-RUN echo extension=rdkafka.so > /etc/php/8.1/mods-available/rdkafka.ini
+RUN echo extension=rdkafka.so > /etc/php/8.3/mods-available/rdkafka.ini
 RUN phpenmod rdkafka
 
-# RUN pecl install Mosquitto-0.4.0
-# RUN printf "; priority=40\nextension=mosquitto.so\n" > /etc/php/8.1/mods-available/mosquitto.ini
-# RUN phpenmod mosquitto
 
-RUN pecl install swoole
-RUN printf "; priority=40\nextension=swoole.so\n" > /etc/php/8.1/mods-available/swoole.ini
-RUN phpenmod swoole
+# RUN pecl install swoole
+# RUN printf "; priority=40\nextension=swoole.so\n" > /etc/php/8.3/mods-available/swoole.ini
+# RUN phpenmod swoole
 
 ADD etc /etc
 
