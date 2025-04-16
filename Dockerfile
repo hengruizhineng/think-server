@@ -73,8 +73,8 @@ RUN apt-get update -y \
 # 安装 PHP 扩展
 RUN pecl install sqlsrv
 RUN pecl install pdo_sqlsrv
-RUN echo "extension=sqlsrv.so" | tee -a /etc/php/8.3/mods-available/20-sqlsrv.ini
-RUN echo "extension=pdo_sqlsrv.so" | tee -a /etc/php/8.3/mods-available/20-pdo_sqlsrv.ini
+RUN echo "extension=sqlsrv.so" | tee -a /etc/php/8.3/mods-available/sqlsrv.ini
+RUN echo "extension=pdo_sqlsrv.so" | tee -a /etc/php/8.3/mods-available/pdo_sqlsrv.ini
 RUN phpenmod sqlsrv
 RUN phpenmod pdo_sqlsrv
 
